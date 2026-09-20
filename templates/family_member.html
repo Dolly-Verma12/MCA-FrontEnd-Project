@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page">
+  <h1>👤 {{ member['name'] }}'s Wellness</h1>
+  <p class="subtitle">{{ member['relationship'] }}</p>
+
+  <div class="summary-grid">
+    {% if member['share_water'] %}
+    <div class="summary-card"><div class="summary-icon">💧</div><div class="summary-label">Water</div><div class="summary-value">{{ member['water_percent'] }}%</div></div>
+    {% endif %}
+    {% if member['share_meals'] %}
+    <div class="summary-card"><div class="summary-icon">🍎</div><div class="summary-label">Meals</div><div class="summary-value">{{ member['meals_percent'] }}%</div></div>
+    {% endif %}
+    {% if member['share_exercise'] %}
+    <div class="summary-card"><div class="summary-icon">🏃</div><div class="summary-label">Exercise</div><div class="summary-value">{{ member['exercise_percent'] }}%</div></div>
+    {% endif %}
+    {% if member['share_tasks'] %}
+    <div class="summary-card"><div class="summary-icon">✅</div><div class="summary-label">Tasks</div><div class="summary-value">{{ member['tasks_percent'] }}%</div></div>
+    {% endif %}
+  </div>
+
+  {% if not (member['share_water'] or member['share_meals'] or member['share_exercise'] or member['share_tasks']) %}
+  <p>This family member hasn't shared any activity yet.</p>
+  {% endif %}
+
+  <h2 class="section-title-sm">🕒 Activity Timeline</h2>
+  <div class="timeline">
+    {% for a in activity %}
+    <div class="timeline-item">
+      <div class="timeline-time">{{ a['created_at'] }}</div>
+      <div>{{ a['activity_text'] }}</div>
+    </div>
+    {% else %}
+    <p>No activity recorded yet.</p>
+    {% endfor %}
+  </div>
+
+  <a href="{{ url_for('family') }}" class="btn btn-line" style="margin-top:20px;display:inline-block;">← Back to Family</a>
+</section>
+{% endblock %}

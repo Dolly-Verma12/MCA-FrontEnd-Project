@@ -1,0 +1,739 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+  <!-- =========================
+       WELCOME
+       ========================= -->
+
+  <div class="dashboard-header">
+
+    <div>
+
+      <p class="welcome-small">YOUR HEALTH TODAY 🌿</p>
+
+      <h1>
+        Hi {{ user['name'] or 'there' }} 👋
+      </h1>
+
+      <p class="dashboard-subtitle">
+        {{ t('dashboard_greeting') }}
+      </p>
+
+    </div>
+
+    <div class="health-avatar">
+      {{ (user['name'] or 'A')[0]|upper }}
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       SUMMARY CARDS
+       ========================= -->
+
+  <div class="summary-grid">
+
+    <div class="summary-card water-card">
+
+      <div class="summary-top">
+
+        <div class="summary-icon">💧</div>
+
+        <span class="summary-mini-label">
+          Hydration
+        </span>
+
+      </div>
+
+      <div class="summary-label">
+        Water
+      </div>
+
+      <div class="summary-value">
+        {{ water_amount }}
+        <span>/ {{ water_goal }} ml</span>
+      </div>
+
+      <div class="mini-progress">
+
+        <div
+          class="mini-progress-fill"
+          style="width: {{ [((water_amount / water_goal) * 100), 100]|min }}%;">
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="summary-card task-summary">
+
+      <div class="summary-top">
+
+        <div class="summary-icon">🏃</div>
+
+        <span class="summary-mini-label">
+          Activity
+        </span>
+
+      </div>
+
+      <div class="summary-label">
+        Tasks
+      </div>
+
+      <div class="summary-value">
+        {{ tasks_done }}
+        <span>/ {{ tasks_total }}</span>
+      </div>
+
+      <p class="summary-note">
+        {{ tasks_done }} tasks completed
+      </p>
+
+    </div>
+
+
+    <div class="summary-card medicine-card">
+
+      <div class="summary-top">
+
+        <div class="summary-icon">💊</div>
+
+        <span class="summary-mini-label">
+          Care
+        </span>
+
+      </div>
+
+      <div class="summary-label">
+        Medicine
+      </div>
+
+      <div class="summary-value">
+        {{ meds_taken }}
+        <span>/ {{ medicines|length }}</span>
+      </div>
+
+      <p class="summary-note">
+        Stay consistent 💚
+      </p>
+
+    </div>
+
+
+    <div class="summary-card progress-card">
+
+      <div class="summary-top">
+
+        <div class="summary-icon">✨</div>
+
+        <span class="summary-mini-label">
+          Today
+        </span>
+
+      </div>
+
+      <div class="summary-label">
+        Daily Progress
+      </div>
+
+      <div class="summary-value">
+        {{ overall_progress }}%
+      </div>
+
+      <p class="summary-note">
+        Keep going!
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       DAILY PROGRESS
+       ========================= -->
+
+  <div class="daily-progress-card">
+
+    <div class="progress-heading">
+
+      <div>
+
+        <h3>
+          Today's Journey 🌱
+        </h3>
+
+        <p>
+          Small steps make a healthy day.
+        </p>
+
+      </div>
+
+      <strong>
+        {{ overall_progress }}%
+      </strong>
+
+    </div>
+
+    <div class="large-progress">
+
+      <div
+        class="large-progress-fill"
+        style="width: {{ overall_progress }}%;">
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       TODAY'S FOCUS
+       ========================= -->
+
+  <div class="section-heading">
+
+    <div>
+
+      <p class="section-eyebrow">
+        YOUR DAILY PLAN
+      </p>
+
+      <h2>
+        Today's Focus 🎯
+      </h2>
+
+    </div>
+
+    <span class="task-count">
+      {{ tasks_done }}/{{ tasks_total }}
+    </span>
+
+  </div>
+
+
+  <div class="task-list">
+
+    {% for task in tasks %}
+
+    <label
+      class="task-item {% if task['completed'] %}task-completed{% endif %}"
+      id="task-{{ task['id'] }}">
+
+      <div class="task-left">
+
+        <input
+          type="checkbox"
+          class="task-checkbox"
+          data-task-id="{{ task['id'] }}"
+          {% if task['completed'] %}checked{% endif %}>
+
+        <div class="custom-check">
+          ✓
+        </div>
+
+        <div class="task-content">
+
+          <span class="task-name">
+            {{ task['task_name'] }}
+          </span>
+
+          <span class="task-status">
+
+            {% if task['completed'] %}
+
+              Completed ✓
+
+            {% else %}
+
+              Tap when completed
+
+            {% endif %}
+
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="task-arrow">
+
+        {% if task['completed'] %}
+
+          🌿
+
+        {% else %}
+
+          →
+
+        {% endif %}
+
+      </div>
+
+    </label>
+
+    {% endfor %}
+
+  </div>
+
+
+  <!-- =========================
+       FAMILY
+       ========================= -->
+
+  {% if family_members %}
+
+  <div class="section-heading family-heading">
+
+    <div>
+
+      <p class="section-eyebrow">
+        YOUR PEOPLE
+      </p>
+
+      <h2>
+        Family Health 👨‍👩‍👧
+      </h2>
+
+    </div>
+
+  </div>
+
+
+  <div class="family-grid">
+
+    {% for m in family_members %}
+
+    <a
+      href="{{ url_for('family_member_detail', member_id=m['id']) }}"
+      class="family-card">
+
+      <div class="family-avatar">
+        {{ m['name'][0]|upper }}
+      </div>
+
+      <div class="family-info">
+
+        <strong>
+          {{ m['name'] }}
+        </strong>
+
+        <span>
+          {{ m['tasks_percent'] }}% completed today
+        </span>
+
+        <div class="family-progress">
+
+          <div
+            style="width: {{ m['tasks_percent'] }}%;">
+          </div>
+
+        </div>
+
+      </div>
+
+      <span class="family-arrow">
+        →
+      </span>
+
+    </a>
+
+    {% endfor %}
+
+  </div>
+
+  {% endif %}
+
+
+  <!-- =========================
+       QUICK ACTIONS
+       ========================= -->
+
+  <div class="section-heading quick-heading">
+
+    <div>
+
+      <p class="section-eyebrow">
+        QUICK ACCESS
+      </p>
+
+      <h2>
+        Take Care of Yourself 💚
+      </h2>
+
+    </div>
+
+  </div>
+
+
+  <div class="quick-links">
+
+    <a
+      href="{{ url_for('meal') }}"
+      class="quick-link meal-link">
+
+      <div class="quick-icon">
+        🍎
+      </div>
+
+      <div>
+
+        <strong>
+          Meals
+        </strong>
+
+        <span>
+          Track your food
+        </span>
+
+      </div>
+
+      <b>
+        →
+      </b>
+
+    </a>
+
+
+    <a
+      href="{{ url_for('exercise') }}"
+      class="quick-link exercise-link">
+
+      <div class="quick-icon">
+        🏃
+      </div>
+
+      <div>
+
+        <strong>
+          Exercise & Yoga
+        </strong>
+
+        <span>
+          Move your body
+        </span>
+
+      </div>
+
+      <b>
+        →
+      </b>
+
+    </a>
+
+
+    <a
+      href="{{ url_for('water') }}"
+      class="quick-link water-link">
+
+      <div class="quick-icon">
+        💧
+      </div>
+
+      <div>
+
+        <strong>
+          Water
+        </strong>
+
+        <span>
+          Stay hydrated
+        </span>
+
+      </div>
+
+      <b>
+        →
+      </b>
+
+    </a>
+
+
+    <a
+      href="{{ url_for('medicine') }}"
+      class="quick-link medicine-link">
+
+      <div class="quick-icon">
+        💊
+      </div>
+
+      <div>
+
+        <strong>
+          Medicine
+        </strong>
+
+        <span>
+          Track your medicines
+        </span>
+
+      </div>
+
+      <b>
+        →
+      </b>
+
+    </a>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     TASK COMPLETED POPUP
+     ===================================================== -->
+
+<div
+  id="taskSuccessPopup"
+  class="success-overlay">
+
+  <div class="success-modal">
+
+    <button
+      type="button"
+      class="success-close"
+      onclick="closeSuccessPopup()">
+
+      ×
+
+    </button>
+
+
+    <div class="success-animation">
+      ✓
+    </div>
+
+
+    <h2>
+      Great Job! 🎉
+    </h2>
+
+
+    <p id="successTaskText">
+      You completed a task.
+    </p>
+
+
+    <div class="success-message">
+      🌱 One small step closer to a healthier you!
+    </div>
+
+
+    <button
+      type="button"
+      class="btn btn-solid success-button"
+      onclick="closeSuccessPopup()">
+
+      Keep Going 💪
+
+    </button>
+
+  </div>
+
+</div>
+
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  const checkboxes =
+    document.querySelectorAll(".task-checkbox");
+
+
+  checkboxes.forEach(function (box) {
+
+    box.addEventListener("change", function () {
+
+      const taskId =
+        this.dataset.taskId;
+
+
+      const taskItem =
+        document.getElementById(
+          "task-" + taskId
+        );
+
+
+      const taskName =
+        taskItem.querySelector(
+          ".task-name"
+        ).textContent.trim();
+
+
+      /*
+       * SEND TASK UPDATE TO FLASK
+       */
+
+      fetch(
+        "/tasks/toggle/" + taskId,
+        {
+          method: "POST"
+        }
+      )
+
+      .then(function (response) {
+
+        if (!response.ok) {
+          throw new Error("Task update failed");
+        }
+
+
+        /*
+         * UPDATE UI
+         */
+
+        if (box.checked) {
+
+          taskItem.classList.add(
+            "task-completed"
+          );
+
+
+          taskItem.querySelector(
+            ".task-status"
+          ).textContent =
+            "Completed ✓";
+
+
+          taskItem.querySelector(
+            ".task-arrow"
+          ).textContent =
+            "🌿";
+
+
+          /*
+           * SHOW POPUP
+           */
+
+          document.getElementById(
+            "successTaskText"
+          ).textContent =
+            '"' +
+            taskName +
+            '" completed successfully!';
+
+
+          document.getElementById(
+            "taskSuccessPopup"
+          ).classList.add(
+            "active"
+          );
+
+
+        } else {
+
+          taskItem.classList.remove(
+            "task-completed"
+          );
+
+
+          taskItem.querySelector(
+            ".task-status"
+          ).textContent =
+            "Tap when completed";
+
+
+          taskItem.querySelector(
+            ".task-arrow"
+          ).textContent =
+            "→";
+
+        }
+
+      })
+
+      .catch(function (error) {
+
+        console.error(error);
+
+
+        /*
+         * If Flask update fails,
+         * restore checkbox state.
+         */
+
+        box.checked =
+          !box.checked;
+
+
+        alert(
+          "Something went wrong. Please try again."
+        );
+
+      });
+
+    });
+
+  });
+
+});
+
+
+/* ==========================================
+   CLOSE SUCCESS POPUP
+   ========================================== */
+
+function closeSuccessPopup() {
+
+  document
+    .getElementById("taskSuccessPopup")
+    .classList.remove("active");
+
+}
+
+
+/* ==========================================
+   CLOSE WHEN CLICKING OUTSIDE
+   ========================================== */
+
+document
+  .getElementById("taskSuccessPopup")
+  .addEventListener(
+    "click",
+    function (event) {
+
+      if (
+        event.target === this
+      ) {
+
+        closeSuccessPopup();
+
+      }
+
+    }
+  );
+
+
+/* ==========================================
+   ESC KEY
+   ========================================== */
+
+document.addEventListener(
+  "keydown",
+  function (event) {
+
+    if (event.key === "Escape") {
+
+      closeSuccessPopup();
+
+    }
+
+  }
+);
+
+</script>
+
+{% endblock %}

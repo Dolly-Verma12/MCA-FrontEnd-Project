@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page">
+  <h1>👤 Your Profile</h1>
+  <p class="subtitle">Tell us a few basic details so we can personalize your routine.</p>
+
+  <form method="POST" class="form-card">
+
+    <h3>Basic Details</h3>
+    <div class="form-grid">
+      <label>Name
+        <input type="text" name="name" value="{{ user['name'] or '' }}" required>
+      </label>
+      <label>Age
+        <input type="number" name="age" value="{{ user['age'] or '' }}" required>
+      </label>
+      <label>Gender
+        <select name="gender">
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <label>Height (cm)
+        <input type="number" step="0.1" name="height_cm" value="{{ user['height_cm'] or '' }}" required>
+      </label>
+      <label>Weight (kg)
+        <input type="number" step="0.1" name="weight_kg" value="{{ user['weight_kg'] or '' }}" required>
+      </label>
+      <label>Diet
+        <select name="diet">
+          <option value="veg">Vegetarian</option>
+          <option value="non-veg">Non-vegetarian</option>
+        </select>
+      </label>
+      <label>Activity Level
+        <select name="activity_level">
+          <option value="low">Low</option>
+          <option value="moderate">Moderate</option>
+          <option value="high">High</option>
+        </select>
+      </label>
+    </div>
+
+    <h3>Do you have any health problem?</h3>
+    <div class="checkbox-grid">
+      {% for condition in ["Diabetes","High Blood Pressure","Obesity","Asthma","Thyroid","Arthritis","Back Pain","Heart-related condition"] %}
+      <label class="checkbox-item">
+        <input type="checkbox" name="health_conditions" value="{{ condition }}"> {{ condition }}
+      </label>
+      {% endfor %}
+    </div>
+    <label>Other (optional)
+      <input type="text" name="other_condition" placeholder="Describe here">
+    </label>
+
+    <h3>What is your main health goal?</h3>
+    <select name="goal" class="full-width">
+      <option value="Weight management">Weight management</option>
+      <option value="Better fitness">Better fitness</option>
+      <option value="Healthy eating">Healthy eating</option>
+      <option value="Increase activity">Increase activity</option>
+      <option value="Better hydration">Better hydration</option>
+      <option value="Improve daily routine">Improve daily routine</option>
+      <option value="General wellness">General wellness</option>
+    </select>
+
+    <button type="submit" class="btn btn-solid full-width">Save &amp; Continue →</button>
+  </form>
+</section>
+{% endblock %}

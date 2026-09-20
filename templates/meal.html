@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page">
+  <h1>🍎 Your Meal Plan</h1>
+  <p class="subtitle">Based on your profile - general wellness guidance, not a medical diet plan.</p>
+
+  <div class="meal-grid">
+    {% for meal in plan %}
+    <div class="meal-card">
+      <h3>{{ meal.label }}</h3>
+      <p class="meal-title">{{ meal.title }}</p>
+      <div class="nutrition-row">
+        <span>Calories: {{ meal.calories }} kcal</span>
+        <span>Protein: {{ meal.protein }} g</span>
+        <span>Carbs: {{ meal.carbs }} g</span>
+        <span>Fat: {{ meal.fat }} g</span>
+        <span>Fiber: {{ meal.fiber }} g</span>
+      </div>
+      <button class="btn-link why-btn" data-why="{{ meal.why }}">Why? 🤔</button>
+    </div>
+    {% endfor %}
+  </div>
+
+  <a href="{{ url_for('meal_analyze') }}" class="btn btn-line" style="margin-top:20px;display:inline-block;">
+    📸 Check My Meal
+  </a>
+</section>
+
+<div class="overlay" id="whyOverlay">
+  <div class="modal">
+    <button class="close-btn" onclick="document.getElementById('whyOverlay').classList.remove('active')">✕</button>
+    <h3>Why is this suitable for you?</h3>
+    <p id="whyText"></p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll(".why-btn").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    document.getElementById("whyText").textContent = this.dataset.why;
+    document.getElementById("whyOverlay").classList.add("active");
+  });
+});
+</script>
+{% endblock %}

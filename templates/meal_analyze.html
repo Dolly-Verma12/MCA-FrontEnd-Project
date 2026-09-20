@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page">
+  <h1>📸 Check My Meal</h1>
+  <p class="subtitle">Upload a photo of your meal.</p>
+
+  <form method="POST" enctype="multipart/form-data" class="form-card">
+    <label>Upload Meal Photo
+      <input type="file" name="meal_photo" accept="image/*">
+    </label>
+    <button type="submit" class="btn btn-solid full-width">Analyze Meal 🔍</button>
+  </form>
+
+  {% if result %}
+  <div class="form-card" style="margin-top:20px;">
+    {% if result.is_demo %}
+    <p class="demo-badge">🔍 Demo Meal Analysis — real-time AI food recognition is coming soon. This is a sample analysis.</p>
+    {% endif %}
+
+    <h3>🍛 {{ result.meal_title }}</h3>
+    <div class="nutrition-row">
+      <span>Calories: {{ result.calories }} kcal</span>
+      <span>Protein: {{ result.protein }} g</span>
+      <span>Carbs: {{ result.carbs }} g</span>
+      <span>Fat: {{ result.fat }} g</span>
+      <span>Fiber: {{ result.fiber }} g</span>
+    </div>
+
+    <h4>Minerals</h4>
+    <p>{{ result.minerals | join(', ') }}</p>
+    <h4>Vitamins</h4>
+    <p>{{ result.vitamins | join(', ') }}</p>
+
+    <h4>💚 Meal Health Score</h4>
+    <p class="score-big">{{ result.health_score }}% — 🟢 {{ result.score_label }}</p>
+    <ul>
+      {% for reason in result.reasons %}
+      <li>{{ '✅' if reason.ok else '⚠️' }} {{ reason.text }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

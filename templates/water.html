@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page">
+  <h1>💧 Daily Water Goal</h1>
+
+  <div class="water-card">
+    <div class="water-goal-text"><span id="goalText">{{ goal }}</span> ml goal</div>
+    <div class="water-progress-text"><span id="amountText">{{ amount }}</span> / <span id="goalText2">{{ goal }}</span> ml</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="waterFill" style="width: {{ (amount / goal * 100) if goal else 0 }}%;"></div>
+    </div>
+    <div class="water-percent" id="waterPercent">{{ ((amount / goal * 100) if goal else 0) | round | int }}%</div>
+
+    <div class="cta-row">
+      <button class="btn btn-line" onclick="addWater(250)">+250 ml</button>
+      <button class="btn btn-solid" onclick="addWater(500)">+500 ml</button>
+    </div>
+  </div>
+</section>
+
+<div class="overlay" id="waterOverlay">
+  <div class="modal">
+    <h2>💧 Nice!</h2>
+    <p id="waterPopupText"></p>
+    <button class="btn btn-solid full-width" onclick="document.getElementById('waterOverlay').classList.remove('active')">Keep going!</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function addWater(ml) {
+  fetch("/water/add", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ amount: ml })
+  })
+  .then(function (res) { return res.json(); })
+  .then(function (data) {
+    document.getElementById("amountText").textContent = data.amount_ml;
+    document.getElementById("goalText").textContent = data.goal_ml;
+    document.getElementById("goalText2").textContent = data.goal_ml;
+
+    const percent = Math.min(100, Math.round((data.amount_ml / data.goal_ml) * 100));
+    document.getElementById("waterFill").style.width = percent + "%";
+    document.getElementById("waterPercent").textContent = percent + "%";
+
+    document.getElementById("waterPopupText").textContent = "You just added " + ml + " ml. Keep going!";
+    document.getElementById("waterOverlay").classList.add("active");
+  });
+}
+</script>
+{% endblock %}

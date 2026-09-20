@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page">
+  <h1>🏃 Your Exercise Plan</h1>
+  <p class="subtitle">General, beginner-friendly movement - not a treatment for any condition.</p>
+
+  <div class="exercise-grid">
+    {% for ex in exercises %}
+    <div class="exercise-card">
+      <h3>{{ ex.name }}</h3>
+      <div class="nutrition-row">
+        <span>⏱ {{ ex.duration }}</span>
+        <span>Level: {{ ex.difficulty }}</span>
+      </div>
+      <p class="meal-title">{{ ex.why }}</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="coming-soon-card">
+    🎥 <strong>AI Exercise Coach</strong> — Coming Soon<br>
+    <small>Future: camera + OpenCV + MediaPipe Pose for rep counting and form feedback.</small>
+  </div>
+
+  <!-- ===================== YOGA SECTION ===================== -->
+  <h1 style="margin-top:50px;">🧘 Yoga</h1>
+  <p class="subtitle">A simple guide to when, why and how to practice - click a pose for step-by-step instructions.</p>
+
+  <div class="rules-grid">
+    <div class="rule-box">
+      <h3>✅ Good times to practice</h3>
+      <ul>
+        {% for item in timing_guide.good_times %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="rule-box avoid">
+      <h3>⚠️ When to avoid or be careful</h3>
+      <ul>
+        {% for item in timing_guide.avoid_times %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="section-title-sm">Beginner Poses</h2>
+  <p class="subtitle">Click a pose to open step-by-step instructions</p>
+
+  <div class="pose-grid" id="poseGrid"></div>
+</section>
+
+<!-- Popup used for yoga pose instructions -->
+<div class="overlay" id="poseOverlay">
+  <div class="modal">
+    <button class="close-btn" onclick="document.getElementById('poseOverlay').classList.remove('active')">✕</button>
+    <div class="modal-image" id="modalImage"></div>
+    <h2 id="modalName"></h2>
+    <div class="sanskrit" id="modalSanskrit"></div>
+
+    <h4>How to do it</h4>
+    <ol id="modalSteps"></ol>
+
+    <h4>Benefits</h4>
+    <ul id="modalBenefits"></ul>
+
+    <div class="caution" id="modalCaution"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Pose data is generated from the server (services/exercise_service.py)
+// so the templates and the data stay in one place.
+const poseData = {{ yoga_poses | tojson }};
+
+const grid = document.getElementById("poseGrid");
+poseData.forEach(function (pose, index) {
+  const card = document.createElement("div");
+  card.className = "pose-card";
+  card.onclick = function () { openPoseModal(index); };
+  card.innerHTML = `
+    <div class="pose-image">${pose.svg}</div>
+    <div class="pose-info">
+      <h3>${pose.name}</h3>
+      <span>${pose.sanskrit}</span><br>
+      <span class="btn-small">View Instructions →</span>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+function openPoseModal(index) {
+  const pose = poseData[index];
+  document.getElementById("modalImage").innerHTML = pose.svg;
+  document.getElementById("modalName").textContent = pose.name;
+  document.getElementById("modalSanskrit").textContent = pose.sanskrit;
+  document.getElementById("modalCaution").textContent = "⚠️ " + pose.caution;
+
+  const stepsList = document.getElementById("modalSteps");
+  stepsList.innerHTML = "";
+  pose.steps.forEach(function (step) {
+    const li = document.createElement("li");
+    li.textContent = step;
+    stepsList.appendChild(li);
+  });
+
+  const benefitsList = document.getElementById("modalBenefits");
+  benefitsList.innerHTML = "";
+  pose.benefits.forEach(function (b) {
+    const li = document.createElement("li");
+    li.textContent = b;
+    benefitsList.appendChild(li);
+  });
+
+  document.getElementById("poseOverlay").classList.add("active");
+}
+</script>
+{% endblock %}

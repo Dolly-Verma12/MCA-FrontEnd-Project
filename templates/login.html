@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .login-wrapper {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .login-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 440px;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(46, 125, 50, 0.12);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .login-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+  }
+
+  .login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .login-icon-badge {
+    width: 60px;
+    height: 60px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 1rem auto;
+  }
+
+  .login-header h2 {
+    font-size: 1.75rem;
+    color: #1b4d3e;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .login-header p {
+    color: #666;
+    font-size: 0.95rem;
+  }
+
+  .input-field-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .input-field-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-wrapper i {
+    position: absolute;
+    left: 1rem;
+    color: #888;
+    font-size: 1.1rem;
+  }
+
+  .styled-input {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+
+  .styled-input:focus {
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.15);
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 0.9rem;
+    background: linear-gradient(135deg, #2e7d32 0%, #1b4d3e 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .btn-submit:hover {
+    background: linear-gradient(135deg, #256628 0%, #143b2f 100%);
+    transform: translateY(-1px);
+  }
+
+  .btn-submit:active {
+    transform: translateY(0);
+  }
+
+  .login-footer {
+    text-align: center;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .login-footer p {
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .login-footer a {
+    color: #2e7d32;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .login-footer a:hover {
+    color: #1b4d3e;
+    text-decoration: underline;
+  }
+
+  .alert-error {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+</style>
+
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-icon-badge">🔑</div>
+      <h2>Welcome Back</h2>
+      <p>Enter your Personal Token to access your health dashboard</p>
+    </div>
+
+    {% if error %}
+    <div class="alert-error">
+      <span>⚠️</span> {{ error }}
+    </div>
+    {% endif %}
+
+    <form action="{{ url_for('login') }}" method="POST" id="loginForm">
+      <div class="input-field-group">
+        <label for="token">Personal Auth Token</label>
+        <div class="input-wrapper">
+          <i>🎟️</i>
+          <input 
+            type="text" 
+            class="styled-input" 
+            id="token" 
+            name="token" 
+            placeholder="e.g. TK-49201" 
+            required 
+            autocomplete="off"
+          >
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">
+        <span>Login to Dashboard</span>
+        <span>→</span>
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <p>Don't have a personal token yet?</p>
+      <a href="{{ url_for('index') }}">Create a New Account</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Add quick interactive loader effect on submission
+  document.getElementById('loginForm').addEventListener('submit', function() {
+    const btn = document.getElementById('submitBtn');
+    btn.style.opacity = '0.8';
+    btn.innerHTML = '<span>Verifying Token...</span>';
+  });
+</script>
+{% endblock %}

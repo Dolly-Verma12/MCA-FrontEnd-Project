@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page">
+  <h1>❤️ Family Health Circle</h1>
+  <p class="subtitle">Stay connected. Stay healthy. Support each other.</p>
+
+  <!-- TOKEN DISPLAY CARDS -->
+  <div class="form-card" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 250px;">
+      <div class="water-goal-text">Your Personal Login Token</div>
+      <div class="family-code" style="font-size: 1.5rem; letter-spacing: 2px; color: #2e7d32;">
+        {{ user['auth_token'] or 'TK-XXXXX' }}
+      </div>
+      <p class="meal-title">Use this unique token to log back into your account anytime.</p>
+    </div>
+
+    <div style="flex: 1; min-width: 250px;">
+      <div class="water-goal-text">Your Family Mentor Token</div>
+      <div class="family-code" style="font-size: 1.5rem; letter-spacing: 2px; color: #1565c0;">
+        {{ user['family_token'] or 'FAM-XXXXX' }}
+      </div>
+      <p class="meal-title">Share this token with family or mentors so they can monitor your activity.</p>
+    </div>
+  </div>
+
+  <!-- MENTOR LOOKUP FORM -->
+  <div class="form-card" style="margin-top: 1.5rem; border-left: 4px solid #1565c0;">
+    <h3>🔍 Monitor a Family Member</h3>
+    <p class="subtitle" style="margin-bottom: 1rem;">Enter a relative's Family Mentor Token to view their live health dashboard.</p>
+    
+    <form action="{{ url_for('mentor_login') }}" method="POST" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <input 
+        type="text" 
+        name="family_token" 
+        placeholder="Enter Family Token (e.g. FAM-30291)" 
+        required 
+        style="flex: 1; min-width: 200px; padding: 0.6rem; border: 1px solid #ccc; border-radius: 8px;"
+      >
+      <button type="submit" class="btn btn-solid" style="background-color: #1565c0;">
+        Monitor Dashboard
+      </button>
+    </form>
+  </div>
+
+  <h2 class="section-title-sm" style="margin-top: 2rem;">Family Wellness</h2>
+  <p class="subtitle">See how everyone is doing today.</p>
+
+  <!-- <div class="family-grid">
+    {% for m in members %}
+    <div class="family-card">
+      <h3>{{ '👩' if m['relationship'] in ['Mother','Spouse'] else '👤' }} {{ m['name'] }}</h3>
+      <div class="meal-title">{{ m['relationship'] }}</div>
+      <div class="progress-bar"><div class="progress-fill" style="width: {{ m['tasks_percent'] if m['tasks_percent'] is not none else 0 }}%;"></div></div>
+      <div class="family-stats">
+        {% if m['share_water'] %}<span>💧 {{ m['water_percent'] }}%</span>{% endif %}
+        {% if m['share_meals'] %}<span>🍎 {{ m['meals_percent'] }}%</span>{% endif %}
+        {% if m['share_exercise'] %}<span>🏃 {{ m['exercise_percent'] }}%</span>{% endif %}
+        {% if m['share_tasks'] %}<span>✅ {{ m['tasks_percent'] }}%</span>{% endif %}
+      </div>
+      <a href="{{ url_for('family_member_detail', member_id=m['id']) }}" class="btn-link">View Activity →</a>
+    </div>
+    {% else %}
+    <p>No family members connected yet.</p>
+    {% endfor %}
+  </div> -->
+</section>
+{% endblock %}

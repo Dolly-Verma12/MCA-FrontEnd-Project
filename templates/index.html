@@ -1,0 +1,1025 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+  <div class="hero-inner">
+
+    <div class="hero-emoji">🌿</div>
+
+    <h1>{{ t('app_name') }}</h1>
+
+    <p class="tagline">
+      {{ t('tagline') }}
+    </p>
+
+    <p class="lede">
+      {{ t('welcome_heading') }}
+    </p>
+
+    <div class="cta-row">
+
+      <!-- CHANGED: Now opens popup -->
+      <button
+        type="button"
+        id="openProfilePopup"
+        class="btn btn-solid">
+        {{ t('begin_button') }} 🚀
+      </button>
+
+      <!-- Hindi button remains same -->
+      <a
+        href="{{ url_for('set_language', lang_code='hi') }}"
+        class="btn btn-line">
+        हिंदी में शुरू करें 🇮🇳
+      </a>
+
+    </div>
+
+  </div>
+</section>
+
+
+<!-- =====================================================
+     WELCOME CARDS
+     ===================================================== -->
+
+<section class="welcome-cards">
+
+  <div class="mini-card">
+    🍎
+    <span>Food</span>
+  </div>
+
+  <div class="mini-card">
+    💧
+    <span>Water</span>
+  </div>
+
+  <div class="mini-card">
+    🏃
+    <span>Exercise &amp; Yoga</span>
+  </div>
+
+  <div class="mini-card">
+    💊
+    <span>Medicine</span>
+  </div>
+
+  <div class="mini-card">
+    ✅
+    <span>Daily routine</span>
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     AROGYASAATHI ONBOARDING POPUP
+     ===================================================== -->
+
+<div
+  id="profilePopup"
+  class="onboarding-overlay"
+  aria-hidden="true">
+
+  <div
+    class="onboarding-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="onboardingTitle">
+
+    <!-- CLOSE -->
+    <button
+      type="button"
+      id="closeProfilePopup"
+      class="onboarding-close"
+      aria-label="Close">
+      ×
+    </button>
+
+
+    <!-- =================================================
+         PROGRESS
+         ================================================= -->
+
+    <div class="onboarding-progress">
+
+      <div
+        id="progressStep1"
+        class="progress-step active">
+      <span>1</span>
+        <small>About You</small>
+      </div>
+      <div class="progress-line"></div>
+      <div
+        id="progressStep2"
+        class="progress-step">
+
+        <span>2</span>
+        <small>Your Health</small>
+
+      </div>
+
+    </div>
+
+    <!-- =================================================
+         STEP 1
+         ================================================= -->
+
+    <div
+      id="profileStep1"
+      class="onboarding-step active">
+
+      <div class="onboarding-icon">
+        👋
+      </div>
+
+      <h2 id="onboardingTitle">
+        Hi! Let's get to know you
+      </h2>
+
+      <p class="onboarding-subtitle">
+        Tell us a little about yourself so
+        AarogyaSaathi can create a routine for you.
+      </p>
+
+      <div class="onboarding-form-grid">
+
+        <!-- NAME -->
+        <label>
+          Your Name
+
+          <input
+            type="text"
+            id="profileName"
+            placeholder="Enter your name"
+            autocomplete="name">
+        </label>
+
+
+        <!-- AGE -->
+        <label>
+          Age
+
+          <input
+            type="number"
+            id="profileAge"
+            min="1"
+            max="120"
+            placeholder="e.g. 25">
+        </label>
+
+
+        <!-- GENDER -->
+        <label>
+          Gender
+
+          <select id="profileGender">
+
+            <option value="female">
+              Female
+            </option>
+
+            <option value="male">
+              Male
+            </option>
+
+            <option value="other">
+              Other
+            </option>
+
+          </select>
+
+        </label>
+
+
+        <!-- HEIGHT -->
+        <label>
+          Height (cm)
+
+          <input
+            type="number"
+            id="profileHeight"
+            min="50"
+            max="250"
+            step="0.1"
+            placeholder="e.g. 165">
+        </label>
+        <!-- WEIGHT -->
+        <label>
+          Weight (kg)
+
+          <input
+            type="number"
+            id="profileWeight"
+            min="1"
+            max="300"
+            step="0.1"
+            placeholder="e.g. 60">
+        </label>
+
+        <!-- DIET -->
+        <label>
+          Diet
+          <select id="profileDiet">
+            <option value="veg">
+              Vegetarian
+            </option>
+            <option value="non-veg">
+              Non-vegetarian
+            </option>
+
+          </select>
+
+        </label>
+
+      </div>
+    <div style="text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee;">
+    <p style="margin-bottom: 0.5rem; color: #666;">Already have a Personal Token?</p>
+    <a href="{{ url_for('login') }}" class="btn-link" style="font-weight: bold; text-decoration: underline;">
+      Login with Personal Token →
+    </a>
+  </div>
+      <!-- STEP 1 BUTTON -->
+      <div class="onboarding-actions">
+        <button
+          type="button"
+          id="nextProfileStep"
+          class="btn onboarding-primary">
+          Continue →
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- =================================================
+         STEP 2
+         ================================================= -->
+
+    <div
+      id="profileStep2"
+      class="onboarding-step">
+
+      <div class="onboarding-icon">
+        💚
+      </div>
+
+      <h2>
+        Let's understand your health
+      </h2>
+
+      <p class="onboarding-subtitle">
+        This helps us personalize your meals,
+        exercise and daily routine.
+      </p>
+
+
+      <!-- ACTIVITY -->
+
+      <label class="onboarding-full-label">
+        How active are you?
+
+        <select id="profileActivity">
+
+          <option value="low">
+            🪴 Low — Mostly sitting / little exercise
+          </option>
+
+          <option value="moderate">
+            🚶 Moderate — Regular walking or exercise
+          </option>
+
+          <option value="high">
+            🏃 High — Frequent exercise / active lifestyle
+          </option>
+
+        </select>
+
+      </label>
+
+
+      <!-- HEALTH CONDITIONS -->
+
+      <h3 class="onboarding-question">
+        Do you have any health concern?
+      </h3>
+
+
+      <div class="health-options">
+
+        <label class="health-option">
+
+          <input
+            type="checkbox"
+            name="health_conditions"
+            value="Diabetes">
+
+          <span>
+            🩸 Diabetes
+          </span>
+
+        </label>
+
+
+        <label class="health-option">
+
+          <input
+            type="checkbox"
+            name="health_conditions"
+            value="High Blood Pressure">
+
+          <span>
+            ❤️ Blood Pressure
+          </span>
+
+        </label>
+
+
+        <label class="health-option">
+
+          <input
+            type="checkbox"
+            name="health_conditions"
+            value="Obesity">
+
+          <span>
+            ⚖️ Weight / Obesity
+          </span>
+
+        </label>
+
+
+        <label class="health-option">
+
+          <input
+            type="checkbox"
+            name="health_conditions"
+            value="Asthma">
+
+          <span>
+            🫁 Asthma
+          </span>
+
+        </label>
+
+
+        <label class="health-option">
+
+          <input
+            type="checkbox"
+            name="health_conditions"
+            value="Arthritis">
+
+          <span>
+            🦴 Arthritis
+          </span>
+
+        </label>
+
+
+        <label class="health-option">
+
+          <input
+            type="checkbox"
+            name="health_conditions"
+            value="Back Pain">
+
+          <span>
+            🧘 Back Pain
+          </span>
+
+        </label>
+
+      </div>
+
+
+      <!-- OTHER -->
+
+      <label class="onboarding-full-label">
+
+        Other concern
+
+        <input
+          type="text"
+          id="profileOtherCondition"
+          placeholder="Optional — tell us here">
+
+      </label>
+
+
+      <!-- GOAL -->
+
+      <h3 class="onboarding-question">
+        What's your main goal?
+      </h3>
+
+
+      <div class="goal-options">
+
+        <button
+          type="button"
+          class="goal-option"
+          data-goal="Weight management">
+
+          ⚖️
+          <span>
+            Weight Management
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="goal-option"
+          data-goal="Better fitness">
+
+          🏃
+          <span>
+            Better Fitness
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="goal-option"
+          data-goal="Healthy eating">
+
+          🥗
+          <span>
+            Healthy Eating
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="goal-option"
+          data-goal="Improve daily routine">
+
+          🌱
+          <span>
+            Better Routine
+          </span>
+
+        </button>
+
+      </div>
+
+
+      <!-- ERROR -->
+
+      <p
+        id="onboardingError"
+        class="onboarding-error">
+      </p>
+
+
+      <!-- BUTTONS -->
+
+      <div class="onboarding-actions">
+
+        <button
+          type="button"
+          id="backProfileStep"
+          class="btn onboarding-back">
+
+          ← Back
+
+        </button>
+
+
+        <button
+          type="button"
+          id="createRoutine"
+          class="btn onboarding-primary">
+
+          Create My Routine 🌿
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+     ===================================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  const popup =
+    document.getElementById("profilePopup");
+
+  const openButton =
+    document.getElementById("openProfilePopup");
+
+  const closeButton =
+    document.getElementById("closeProfilePopup");
+
+  const step1 =
+    document.getElementById("profileStep1");
+
+  const step2 =
+    document.getElementById("profileStep2");
+
+  const progressStep1 =
+    document.getElementById("progressStep1");
+
+  const progressStep2 =
+    document.getElementById("progressStep2");
+
+  const nextButton =
+    document.getElementById("nextProfileStep");
+
+  const backButton =
+    document.getElementById("backProfileStep");
+
+  const createButton =
+    document.getElementById("createRoutine");
+
+  const errorMessage =
+    document.getElementById("onboardingError");
+
+
+  /* ==========================================
+     OPEN POPUP
+     ========================================== */
+
+  openButton.addEventListener("click", function () {
+
+    popup.classList.add("active");
+
+    popup.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    showStep1();
+
+    document.body.style.overflow = "hidden";
+
+    setTimeout(function () {
+
+      document
+        .getElementById("profileName")
+        .focus();
+
+    }, 100);
+
+  });
+
+
+  /* ==========================================
+     CLOSE POPUP
+     ========================================== */
+
+  function closePopup() {
+
+    popup.classList.remove("active");
+
+    popup.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    document.body.style.overflow = "";
+
+  }
+
+
+  closeButton.addEventListener(
+    "click",
+    closePopup
+  );
+
+
+  /* ==========================================
+     CLICK OUTSIDE
+     ========================================== */
+
+  popup.addEventListener(
+    "click",
+    function (event) {
+
+      if (event.target === popup) {
+
+        closePopup();
+
+      }
+
+    }
+  );
+
+
+  /* ==========================================
+     ESC KEY
+     ========================================== */
+
+  document.addEventListener(
+    "keydown",
+    function (event) {
+
+      if (
+        event.key === "Escape" &&
+        popup.classList.contains("active")
+      ) {
+
+        closePopup();
+
+      }
+
+    }
+  );
+
+
+  /* ==========================================
+     SHOW STEP 1
+     ========================================== */
+
+  function showStep1() {
+
+    step1.classList.add("active");
+
+    step2.classList.remove("active");
+
+    progressStep1.classList.add("active");
+
+    progressStep2.classList.remove("active");
+
+    errorMessage.textContent = "";
+
+  }
+
+
+  /* ==========================================
+     SHOW STEP 2
+     ========================================== */
+
+  function showStep2() {
+
+    step1.classList.remove("active");
+
+    step2.classList.add("active");
+
+    progressStep1.classList.add("active");
+
+    progressStep2.classList.add("active");
+
+    errorMessage.textContent = "";
+
+  }
+
+
+  /* ==========================================
+     STEP 1 VALIDATION
+     ========================================== */
+
+  nextButton.addEventListener(
+    "click",
+    function () {
+
+      const name =
+        document
+          .getElementById("profileName")
+          .value
+          .trim();
+
+      const age =
+        Number(
+          document
+            .getElementById("profileAge")
+            .value
+        );
+
+      const height =
+        Number(
+          document
+            .getElementById("profileHeight")
+            .value
+        );
+
+      const weight =
+        Number(
+          document
+            .getElementById("profileWeight")
+            .value
+        );
+
+
+      if (!name) {
+
+        alert(
+          "Please enter your name."
+        );
+
+        document
+          .getElementById("profileName")
+          .focus();
+
+        return;
+
+      }
+
+
+      if (
+        !age ||
+        age < 1 ||
+        age > 120
+      ) {
+
+        alert(
+          "Please enter a valid age."
+        );
+
+        document
+          .getElementById("profileAge")
+          .focus();
+
+        return;
+
+      }
+
+
+      if (
+        !height ||
+        height < 50 ||
+        height > 250
+      ) {
+
+        alert(
+          "Please enter a valid height."
+        );
+
+        document
+          .getElementById("profileHeight")
+          .focus();
+
+        return;
+
+      }
+
+
+      if (
+        !weight ||
+        weight < 1 ||
+        weight > 300
+      ) {
+
+        alert(
+          "Please enter a valid weight."
+        );
+
+        document
+          .getElementById("profileWeight")
+          .focus();
+
+        return;
+
+      }
+
+
+      showStep2();
+
+    }
+  );
+
+
+  /* ==========================================
+     BACK
+     ========================================== */
+
+  backButton.addEventListener(
+    "click",
+    function () {
+
+      showStep1();
+
+    }
+  );
+
+
+  /* ==========================================
+     GOAL SELECTION
+     ========================================== */
+
+  const goalButtons =
+    document.querySelectorAll(
+      ".goal-option"
+    );
+
+  let selectedGoal = "";
+
+
+  goalButtons.forEach(
+    function (button) {
+
+      button.addEventListener(
+        "click",
+        function () {
+
+          goalButtons.forEach(
+            function (item) {
+
+              item.classList.remove(
+                "selected"
+              );
+
+            }
+          );
+
+
+          button.classList.add(
+            "selected"
+          );
+
+
+          selectedGoal =
+            button.dataset.goal;
+
+        }
+      );
+
+    }
+  );
+
+
+  /* ==========================================
+     CREATE ROUTINE
+     ========================================== */
+
+  createButton.addEventListener(
+    "click",
+    function () {
+
+      errorMessage.textContent = "";
+
+
+      if (!selectedGoal) {
+
+        errorMessage.textContent =
+          "Please choose your main health goal.";
+
+        return;
+
+      }
+
+
+      /*
+       * Create a temporary form and send
+       * the data to your existing Flask
+       * /profile route.
+       */
+
+      const form =
+        document.createElement("form");
+
+      form.method = "POST";
+
+      form.action =
+        "{{ url_for('profile') }}";
+
+
+      function addField(
+        name,
+        value
+      ) {
+
+        const input =
+          document.createElement("input");
+
+        input.type = "hidden";
+
+        input.name = name;
+
+        input.value = value;
+
+        form.appendChild(input);
+
+      }
+
+
+      /* BASIC DETAILS */
+
+      addField(
+        "name",
+        document
+          .getElementById("profileName")
+          .value
+          .trim()
+      );
+
+
+      addField(
+        "age",
+        document
+          .getElementById("profileAge")
+          .value
+      );
+
+
+      addField(
+        "gender",
+        document
+          .getElementById("profileGender")
+          .value
+      );
+
+
+      addField(
+        "height_cm",
+        document
+          .getElementById("profileHeight")
+          .value
+      );
+
+
+      addField(
+        "weight_kg",
+        document
+          .getElementById("profileWeight")
+          .value
+      );
+
+
+      addField(
+        "diet",
+        document
+          .getElementById("profileDiet")
+          .value
+      );
+
+
+      addField(
+        "activity_level",
+        document
+          .getElementById("profileActivity")
+          .value
+      );
+
+
+      addField(
+        "goal",
+        selectedGoal
+      );
+
+
+      /* HEALTH CONDITIONS */
+
+      const conditions =
+        document.querySelectorAll(
+          'input[name="health_conditions"]:checked'
+        );
+
+
+      conditions.forEach(
+        function (checkbox) {
+
+          addField(
+            "health_conditions",
+            checkbox.value
+          );
+
+        }
+      );
+
+
+      /* OTHER CONDITION */
+
+      addField(
+        "other_condition",
+        document
+          .getElementById(
+            "profileOtherCondition"
+          )
+          .value
+          .trim()
+      );
+
+
+      /* SUBMIT */
+
+      document.body.appendChild(form);
+
+      form.submit();
+
+    }
+  );
+
+});
+
+</script>
+
+{% endblock %}

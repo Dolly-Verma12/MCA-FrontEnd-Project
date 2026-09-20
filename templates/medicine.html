@@ -1,0 +1,1801 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="page">
+
+  <h1>💊 Medicine Reminder</h1>
+
+  <p class="subtitle">
+    AarogyaSaathi reminds you about the medicine information you enter yourself.
+    It does not prescribe or change medication.
+  </p>
+
+
+  <!-- ==============================
+       ADD MEDICINE
+       ============================== -->
+
+  <form method="POST" class="form-card" id="medicineForm">
+
+    <div class="form-grid">
+
+      <label>
+        Medicine name
+        <input
+          type="text"
+          name="medicine_name"
+          id="medicineName"
+          placeholder="e.g. BP Medicine"
+          required
+        >
+      </label>
+
+
+      <label>
+        Dosage
+        <input
+          type="text"
+          name="dosage"
+          id="medicineDosage"
+          placeholder="e.g. 1 tablet"
+          required
+        >
+      </label>
+
+
+      <!-- 12 HOUR TIME -->
+
+      <label>
+        Reminder Time
+
+        <div class="time-selector">
+
+          <select id="hourSelect" required>
+            <option value="">Hour</option>
+
+            {% for h in range(1, 13) %}
+              <option value="{{ h }}">
+                {{ h }}
+              </option>
+            {% endfor %}
+
+          </select>
+
+
+          <span>:</span>
+
+
+          <select id="minuteSelect" required>
+            <option value="">Min</option>
+
+            {% for m in range(0, 60, 5) %}
+              <option value="{{ '%02d' % m }}">
+                {{ '%02d' % m }}
+              </option>
+            {% endfor %}
+
+          </select>
+
+
+          <select id="ampmSelect" required>
+
+            <option value="">AM/PM</option>
+
+            <option value="AM">AM</option>
+
+            <option value="PM">PM</option>
+
+          </select>
+
+        </div>
+
+
+        <!-- Flask will receive normal HH:MM here -->
+
+        <input
+          type="hidden"
+          name="time_of_day"
+          id="timeOfDay"
+        >
+
+      </label>
+
+
+      <label>
+        Notes (optional)
+
+        <input
+          type="text"
+          name="notes"
+          id="medicineNotes"
+          placeholder="e.g. After breakfast"
+        >
+      </label>
+
+    </div>
+
+
+    <button
+      type="submit"
+      class="btn btn-solid full-width"
+    >
+      💊 Add Medicine Reminder
+    </button>
+
+  </form>
+
+
+
+  <!-- ==============================
+       MEDICINE LIST
+       ============================== -->
+
+  <div class="medicine-list">
+
+    {% for med in medicines %}
+
+    <div
+      class="medicine-item {{ 'taken' if med['taken'] }}"
+      data-time="{{ med['time_of_day'] }}"
+      data-name="{{ med['medicine_name'] }}"
+      data-dosage="{{ med['dosage'] }}"
+      data-taken="{{ 'true' if med['taken'] else 'false' }}"
+    >
+
+      <div>
+
+        <strong>
+          💊 {{ med['medicine_name'] }}
+        </strong>
+
+        <div class="meal-title">
+          💊 {{ med['dosage'] }}
+        </div>
+
+        <div
+          class="meal-title medicine-display-time"
+          data-display-time="{{ med['time_of_day'] }}"
+        >
+          🕐 {{ med['time_of_day'] }}
+        </div>
+
+        {% if med['notes'] %}
+
+        <div class="meal-title">
+          📝 {{ med['notes'] }}
+        </div>
+
+        {% endif %}
+
+      </div>
+
+
+      <div>
+
+        {% if med['taken'] %}
+
+          <span class="tag-done">
+            ✓ Taken
+          </span>
+
+        {% else %}
+
+          <form
+            method="POST"
+            action="{{ url_for('medicine_taken', medicine_id=med['id']) }}"
+          >
+
+            <button
+              type="submit"
+              class="btn btn-line taken-button"
+            >
+              ✓ Taken
+            </button>
+
+          </form>
+
+        {% endif %}
+
+      </div>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-medicine">
+
+      <div class="empty-icon">
+        💊
+      </div>
+
+      <h3>No medicine reminders yet</h3>
+
+      <p>
+        Add your first medicine reminder above.
+      </p>
+
+    </div>
+
+    {% endfor %}
+
+  </div>
+
+</section>
+
+
+
+<!-- =========================================
+     REMINDER BELL
+     ========================================= -->
+
+<button
+  class="reminder-bell"
+  id="reminderBell"
+  onclick="openPendingReminders()"
+  title="Your reminders"
+>
+
+  🔔
+
+  <span
+    class="bell-count"
+    id="bellCount"
+  >
+    0
+  </span>
+
+</button>
+
+
+
+<!-- =========================================
+     POPUP
+     ========================================= -->
+
+<div
+  class="reminder-overlay"
+  id="reminderOverlay"
+>
+
+  <div class="reminder-popup">
+
+    <button
+      class="popup-close"
+      onclick="closeReminderPopup()"
+    >
+      ×
+    </button>
+
+
+    <div
+      class="popup-icon"
+      id="popupIcon"
+    >
+      🔔
+    </div>
+
+
+    <h2 id="popupTitle">
+      Medicine Reminder
+    </h2>
+
+
+    <p id="popupMessage">
+      Your reminder is here.
+    </p>
+
+
+    <div
+      class="popup-medicine"
+      id="popupMedicine"
+    >
+      💊 Medicine
+    </div>
+
+
+    <div
+      class="popup-dosage"
+      id="popupDosage"
+    >
+      Dosage
+    </div>
+
+
+    <div
+      class="popup-time"
+      id="popupTime"
+    >
+      🕐 Time
+    </div>
+
+
+    <button
+      class="popup-main-button"
+      id="popupButton"
+      onclick="closeReminderPopup()"
+    >
+      Okay 👍
+    </button>
+
+  </div>
+
+</div>
+
+
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+<style>
+
+/* =========================================
+   TIME SELECTOR
+   ========================================= */
+
+.time-selector {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 8px;
+
+}
+
+
+.time-selector select {
+
+  flex: 1;
+
+  padding: 13px;
+
+  border: 1px solid #dce7d9;
+
+  border-radius: 12px;
+
+  background: #f5f8f3;
+
+  color: #315c48;
+
+  font-size: 15px;
+
+  outline: none;
+
+}
+
+
+.time-selector span {
+
+  font-size: 20px;
+
+  font-weight: bold;
+
+  color: #287052;
+
+}
+
+
+
+/* =========================================
+   REMINDER BELL
+   ========================================= */
+
+.reminder-bell {
+
+  position: fixed;
+
+  right: 25px;
+
+  bottom: 25px;
+
+  width: 60px;
+
+  height: 60px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #287e5c;
+
+  color: white;
+
+  font-size: 26px;
+
+  cursor: pointer;
+
+  z-index: 9990;
+
+  box-shadow:
+    0 10px 30px rgba(25, 90, 60, 0.28);
+
+  transition: 0.25s;
+
+}
+
+
+.reminder-bell:hover {
+
+  transform: scale(1.08);
+
+}
+
+
+.bell-count {
+
+  position: absolute;
+
+  top: -3px;
+
+  right: -3px;
+
+  min-width: 21px;
+
+  height: 21px;
+
+  padding: 2px 5px;
+
+  border-radius: 20px;
+
+  background: #ef5b5b;
+
+  color: white;
+
+  font-size: 11px;
+
+  font-weight: bold;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+}
+
+
+
+/* =========================================
+   POPUP OVERLAY
+   ========================================= */
+
+.reminder-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(20, 55, 40, 0.48);
+
+  backdrop-filter: blur(6px);
+
+  display: none;
+
+  align-items: center;
+
+  justify-content: center;
+
+  z-index: 99999;
+
+  padding: 20px;
+
+}
+
+
+.reminder-overlay.show {
+
+  display: flex;
+
+}
+
+
+
+/* =========================================
+   POPUP
+   ========================================= */
+
+.reminder-popup {
+
+  width: min(440px, 100%);
+
+  background: white;
+
+  border-radius: 28px;
+
+  padding: 32px;
+
+  text-align: center;
+
+  position: relative;
+
+  box-shadow:
+    0 25px 80px rgba(0,0,0,0.25);
+
+  animation: popupIn 0.35s ease;
+
+}
+
+
+@keyframes popupIn {
+
+  from {
+
+    opacity: 0;
+
+    transform: translateY(25px) scale(0.9);
+
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform: translateY(0) scale(1);
+
+  }
+
+}
+
+
+
+/* =========================================
+   CLOSE BUTTON
+   ========================================= */
+
+.popup-close {
+
+  position: absolute;
+
+  right: 15px;
+
+  top: 15px;
+
+  width: 35px;
+
+  height: 35px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #f1f5ef;
+
+  color: #547064;
+
+  font-size: 22px;
+
+  cursor: pointer;
+
+}
+
+
+
+/* =========================================
+   POPUP ICON
+   ========================================= */
+
+.popup-icon {
+
+  width: 85px;
+
+  height: 85px;
+
+  margin: 0 auto 16px;
+
+  border-radius: 50%;
+
+  background: #eaf6ed;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 45px;
+
+  animation: pulse 1.2s infinite;
+
+}
+
+
+@keyframes pulse {
+
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+
+}
+
+
+
+/* =========================================
+   POPUP TEXT
+   ========================================= */
+
+.reminder-popup h2 {
+
+  color: #176044;
+
+  margin: 0 0 8px;
+
+  font-size: 26px;
+
+}
+
+
+.reminder-popup p {
+
+  color: #718078;
+
+  margin-bottom: 18px;
+
+}
+
+
+.popup-medicine {
+
+  background: #f1f7ef;
+
+  border: 1px solid #deeadb;
+
+  border-radius: 15px;
+
+  padding: 15px;
+
+  color: #245c43;
+
+  font-weight: 800;
+
+  font-size: 18px;
+
+}
+
+
+.popup-dosage {
+
+  color: #65746c;
+
+  margin-top: 8px;
+
+}
+
+
+.popup-time {
+
+  margin-top: 7px;
+
+  color: #287052;
+
+  font-weight: 700;
+
+}
+
+
+
+/* =========================================
+   POPUP BUTTON
+   ========================================= */
+
+.popup-main-button {
+
+  width: 100%;
+
+  margin-top: 22px;
+
+  padding: 14px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: #2d8664;
+
+  color: white;
+
+  font-weight: 800;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+}
+
+
+.popup-main-button:hover {
+
+  transform: translateY(-2px);
+
+}
+
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media(max-width:600px) {
+
+  .reminder-popup {
+
+    padding: 26px 20px;
+
+  }
+
+  .reminder-bell {
+
+    right: 18px;
+
+    bottom: 18px;
+
+  }
+
+}
+
+</style>
+
+
+
+<script>
+
+/* =====================================================
+   GLOBAL SETTINGS
+   ===================================================== */
+
+const WARNING_MINUTES = 5;
+
+const MISSED_MINUTES = 5;
+
+const shownReminders = new Set();
+
+
+
+/* =====================================================
+   CONVERT 12 HOUR → 24 HOUR
+   ===================================================== */
+
+function convertTo24Hour(hour, minute, ampm) {
+
+  hour = parseInt(hour);
+
+  minute = String(minute).padStart(2, "0");
+
+
+  if (ampm === "AM") {
+
+    if (hour === 12) {
+
+      hour = 0;
+
+    }
+
+  }
+
+
+  if (ampm === "PM") {
+
+    if (hour !== 12) {
+
+      hour += 12;
+
+    }
+
+  }
+
+
+  return String(hour).padStart(2, "0") + ":" + minute;
+
+}
+
+
+
+/* =====================================================
+   CONVERT 24 HOUR → 12 HOUR
+   ===================================================== */
+
+function convertTo12Hour(time) {
+
+  if (!time) {
+
+    return "";
+
+  }
+
+
+  const parts = time.split(":");
+
+  let hour = parseInt(parts[0]);
+
+  const minute = parts[1];
+
+
+  const ampm = hour >= 12 ? "PM" : "AM";
+
+
+  hour = hour % 12;
+
+  if (hour === 0) {
+
+    hour = 12;
+
+  }
+
+
+  return hour + ":" + minute + " " + ampm;
+
+}
+
+
+
+/* =====================================================
+   ADD MEDICINE POPUP
+   ===================================================== */
+
+function showAddedPopup(
+  name,
+  dosage,
+  time
+) {
+
+  document.getElementById(
+    "popupIcon"
+  ).textContent = "🎉";
+
+
+  document.getElementById(
+    "popupTitle"
+  ).textContent =
+    "Medicine Added Successfully!";
+
+
+  document.getElementById(
+    "popupMessage"
+  ).textContent =
+    "Hurray! Your medicine reminder has been added.";
+
+
+  document.getElementById(
+    "popupMedicine"
+  ).textContent =
+    "💊 " + name;
+
+
+  document.getElementById(
+    "popupDosage"
+  ).textContent =
+    "Dosage: " + dosage;
+
+
+  document.getElementById(
+    "popupTime"
+  ).textContent =
+    "🕐 Reminder set for " +
+    convertTo12Hour(time);
+
+
+  document.getElementById(
+    "popupButton"
+  ).textContent =
+    "Great! 👍";
+
+
+  document.getElementById(
+    "reminderOverlay"
+  ).classList.add("show");
+
+
+  playHurraySound();
+
+
+  speak(
+    "Hurray! Your medicine reminder has been added successfully."
+  );
+
+}
+
+
+
+/* =====================================================
+   REMINDER POPUP
+   ===================================================== */
+
+function showReminderPopup(
+  type,
+  name,
+  dosage,
+  time
+) {
+
+  const icon =
+    document.getElementById("popupIcon");
+
+  const title =
+    document.getElementById("popupTitle");
+
+  const message =
+    document.getElementById("popupMessage");
+
+  const medicine =
+    document.getElementById("popupMedicine");
+
+  const dosageBox =
+    document.getElementById("popupDosage");
+
+  const timeBox =
+    document.getElementById("popupTime");
+
+  const button =
+    document.getElementById("popupButton");
+
+
+  medicine.textContent =
+    "💊 " + name;
+
+
+  dosageBox.textContent =
+    "Dosage: " + dosage;
+
+
+  timeBox.textContent =
+    "🕐 Scheduled for " +
+    convertTo12Hour(time);
+
+
+
+  if (type === "warning") {
+
+    icon.textContent = "⏰";
+
+    title.textContent =
+      "Coming Up Soon!";
+
+    message.textContent =
+      "Your medicine reminder is in about 5 minutes.";
+
+    button.textContent =
+      "I'll Remember 👍";
+
+
+    speak(
+      "Your medicine reminder is coming up in five minutes."
+    );
+
+  }
+
+
+
+  if (type === "due") {
+
+    icon.textContent = "🔔";
+
+    title.textContent =
+      "Medicine Time!";
+
+    message.textContent =
+      "It's time for your scheduled medicine reminder.";
+
+    button.textContent =
+      "Got It 👍";
+
+
+    speak(
+      "Medicine reminder. It is time for your scheduled medicine."
+    );
+
+  }
+
+
+
+  if (type === "missed") {
+
+    icon.textContent = "⚠️";
+
+    title.textContent =
+      "Reminder Missed";
+
+    message.textContent =
+      "Your scheduled reminder time has passed. Please check your medicine reminder.";
+
+    button.textContent =
+      "Check Reminder";
+
+
+    speak(
+      "Your medicine reminder time has passed. Please check your reminder."
+    );
+
+  }
+
+
+  document
+    .getElementById("reminderOverlay")
+    .classList.add("show");
+
+
+  playBeep();
+
+}
+
+
+
+/* =====================================================
+   CLOSE POPUP
+   ===================================================== */
+
+function closeReminderPopup() {
+
+  document
+    .getElementById("reminderOverlay")
+    .classList.remove("show");
+
+}
+
+
+
+/* =====================================================
+   SPEECH
+   ===================================================== */
+
+function speak(message) {
+
+  if (!("speechSynthesis" in window)) {
+
+    return;
+
+  }
+
+
+  window.speechSynthesis.cancel();
+
+
+  const speech =
+    new SpeechSynthesisUtterance(message);
+
+
+  speech.rate = 0.9;
+
+  speech.pitch = 1.1;
+
+  speech.volume = 1;
+
+
+  window.speechSynthesis.speak(speech);
+
+}
+
+
+
+/* =====================================================
+   BEEP
+   ===================================================== */
+
+function playBeep() {
+
+  try {
+
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+
+    if (!AudioContext) {
+
+      return;
+
+    }
+
+
+    const audio =
+      new AudioContext();
+
+
+    const oscillator =
+      audio.createOscillator();
+
+
+    const gain =
+      audio.createGain();
+
+
+    oscillator.connect(gain);
+
+    gain.connect(audio.destination);
+
+
+    oscillator.frequency.value = 700;
+
+    oscillator.type = "sine";
+
+
+    gain.gain.setValueAtTime(
+      0.001,
+      audio.currentTime
+    );
+
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.25,
+      audio.currentTime + 0.05
+    );
+
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      audio.currentTime + 0.7
+    );
+
+
+    oscillator.start();
+
+
+    oscillator.stop(
+      audio.currentTime + 0.7
+    );
+
+  }
+
+  catch(error) {
+
+    console.log(error);
+
+  }
+
+}
+
+
+
+/* =====================================================
+   HURRAY SOUND
+   ===================================================== */
+
+function playHurraySound() {
+
+  try {
+
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+
+    const audio =
+      new AudioContext();
+
+
+    const notes = [
+      523,
+      659,
+      784
+    ];
+
+
+    notes.forEach(
+      function(freq, index) {
+
+        const oscillator =
+          audio.createOscillator();
+
+
+        const gain =
+          audio.createGain();
+
+
+        oscillator.connect(gain);
+
+        gain.connect(audio.destination);
+
+
+        oscillator.frequency.value =
+          freq;
+
+
+        oscillator.type = "sine";
+
+
+        const start =
+          audio.currentTime +
+          index * 0.13;
+
+
+        gain.gain.setValueAtTime(
+          0.001,
+          start
+        );
+
+
+        gain.gain.exponentialRampToValueAtTime(
+          0.22,
+          start + 0.04
+        );
+
+
+        gain.gain.exponentialRampToValueAtTime(
+          0.001,
+          start + 0.25
+        );
+
+
+        oscillator.start(start);
+
+        oscillator.stop(
+          start + 0.25
+        );
+
+      }
+    );
+
+  }
+
+  catch(error) {
+
+    console.log(error);
+
+  }
+
+}
+
+
+
+/* =====================================================
+   FORM SUBMIT
+   ===================================================== */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    const form =
+      document.getElementById(
+        "medicineForm"
+      );
+
+
+    form.addEventListener(
+      "submit",
+      function(event) {
+
+        const hour =
+          document.getElementById(
+            "hourSelect"
+          ).value;
+
+
+        const minute =
+          document.getElementById(
+            "minuteSelect"
+          ).value;
+
+
+        const ampm =
+          document.getElementById(
+            "ampmSelect"
+          ).value;
+
+
+        if (
+          !hour ||
+          !minute ||
+          !ampm
+        ) {
+
+          event.preventDefault();
+
+          alert(
+            "Please select hour, minute and AM/PM."
+          );
+
+          return;
+
+        }
+
+
+        /*
+           Convert selected 12-hour time
+           to HH:MM for Flask/database.
+        */
+
+        const time =
+          convertTo24Hour(
+            hour,
+            minute,
+            ampm
+          );
+
+
+        document.getElementById(
+          "timeOfDay"
+        ).value = time;
+
+
+        const name =
+          document.getElementById(
+            "medicineName"
+          ).value;
+
+
+        const dosage =
+          document.getElementById(
+            "medicineDosage"
+          ).value;
+
+
+        /*
+           Prevent immediate submit for
+           a moment so user can see popup.
+        */
+
+        event.preventDefault();
+
+
+        showAddedPopup(
+          name,
+          dosage,
+          time
+        );
+
+
+        /*
+           Submit to Flask after popup
+           has been visible.
+        */
+
+        setTimeout(
+          function() {
+
+            form.submit();
+
+          },
+          1600
+        );
+
+      }
+    );
+
+
+    /*
+       Convert existing medicines
+       to 12-hour display.
+    */
+
+    document
+      .querySelectorAll(
+        ".medicine-display-time"
+      )
+      .forEach(
+        function(element) {
+
+          const time =
+            element.dataset.displayTime;
+
+
+          element.textContent =
+            "🕐 " +
+            convertTo12Hour(time);
+
+        }
+      );
+
+
+    /*
+       Start reminder checking.
+    */
+
+    updateBell();
+
+    checkMedicineReminders();
+
+    setInterval(
+      checkMedicineReminders,
+      20000
+    );
+
+    setInterval(
+      updateBell,
+      20000
+    );
+
+  }
+);
+
+
+
+/* =====================================================
+   TIME TO MINUTES
+   ===================================================== */
+
+function timeToMinutes(time) {
+
+  if (!time) {
+
+    return null;
+
+  }
+
+
+  const parts =
+    time.split(":");
+
+
+  const hour =
+    parseInt(parts[0]);
+
+
+  const minute =
+    parseInt(parts[1]);
+
+
+  return (
+    hour * 60 +
+    minute
+  );
+
+}
+
+
+
+/* =====================================================
+   CHECK MEDICINE REMINDERS
+   ===================================================== */
+
+function checkMedicineReminders() {
+
+  const now =
+    new Date();
+
+
+  const currentMinutes =
+    now.getHours() * 60 +
+    now.getMinutes();
+
+
+  document
+    .querySelectorAll(
+      ".medicine-item"
+    )
+    .forEach(
+      function(medicine) {
+
+        if (
+          medicine.dataset.taken ===
+          "true"
+        ) {
+
+          return;
+
+        }
+
+
+        const medicineTime =
+          medicine.dataset.time;
+
+
+        const name =
+          medicine.dataset.name;
+
+
+        const dosage =
+          medicine.dataset.dosage;
+
+
+        const medicineMinutes =
+          timeToMinutes(
+            medicineTime
+          );
+
+
+        if (
+          medicineMinutes === null
+        ) {
+
+          return;
+
+        }
+
+
+        const difference =
+          medicineMinutes -
+          currentMinutes;
+
+
+
+        /* =========================
+           5 MINUTES BEFORE
+           ========================= */
+
+        if (
+          difference <= WARNING_MINUTES &&
+          difference > 0
+        ) {
+
+          const key =
+            name +
+            medicineTime +
+            "warning";
+
+
+          if (
+            !shownReminders.has(key)
+          ) {
+
+            shownReminders.add(key);
+
+
+            showReminderPopup(
+              "warning",
+              name,
+              dosage,
+              medicineTime
+            );
+
+          }
+
+        }
+
+
+
+        /* =========================
+           EXACT TIME
+           ========================= */
+
+        if (
+          difference === 0
+        ) {
+
+          const key =
+            name +
+            medicineTime +
+            "due";
+
+
+          if (
+            !shownReminders.has(key)
+          ) {
+
+            shownReminders.add(key);
+
+
+            showReminderPopup(
+              "due",
+              name,
+              dosage,
+              medicineTime
+            );
+
+          }
+
+        }
+
+
+
+        /* =========================
+           5 MINUTES AFTER
+           ========================= */
+
+        if (
+          difference < 0 &&
+          difference >= -MISSED_MINUTES
+        ) {
+
+          const key =
+            name +
+            medicineTime +
+            "missed";
+
+
+          if (
+            !shownReminders.has(key)
+          ) {
+
+            shownReminders.add(key);
+
+
+            showReminderPopup(
+              "missed",
+              name,
+              dosage,
+              medicineTime
+            );
+
+          }
+
+        }
+
+      }
+    );
+
+}
+
+
+
+/* =====================================================
+   BELL COUNT
+   ===================================================== */
+
+function updateBell() {
+
+  let pending = 0;
+
+
+  document
+    .querySelectorAll(
+      ".medicine-item"
+    )
+    .forEach(
+      function(medicine) {
+
+        if (
+          medicine.dataset.taken !==
+          "true"
+        ) {
+
+          pending++;
+
+        }
+
+      }
+    );
+
+
+  document.getElementById(
+    "bellCount"
+  ).textContent = pending;
+
+}
+
+
+
+/* =====================================================
+   OPEN PENDING REMINDERS
+   ===================================================== */
+
+function openPendingReminders() {
+
+  let pendingMedicine = null;
+
+
+  document
+    .querySelectorAll(
+      ".medicine-item"
+    )
+    .forEach(
+      function(medicine) {
+
+        if (
+          medicine.dataset.taken !==
+          "true"
+        ) {
+
+          if (!pendingMedicine) {
+
+            pendingMedicine =
+              medicine;
+
+          }
+
+        }
+
+      }
+    );
+
+
+  if (!pendingMedicine) {
+
+    document.getElementById(
+      "popupIcon"
+    ).textContent = "🎉";
+
+
+    document.getElementById(
+      "popupTitle"
+    ).textContent =
+      "All Done!";
+
+
+    document.getElementById(
+      "popupMessage"
+    ).textContent =
+      "You have no pending medicine reminders.";
+
+
+    document.getElementById(
+      "popupMedicine"
+    ).textContent =
+      "✨ Great job!";
+
+
+    document.getElementById(
+      "popupDosage"
+    ).textContent =
+      "";
+
+
+    document.getElementById(
+      "popupTime"
+    ).textContent =
+      "";
+
+
+    document.getElementById(
+      "popupButton"
+    ).textContent =
+      "Awesome! 🎉";
+
+
+    document.getElementById(
+      "reminderOverlay"
+    ).classList.add("show");
+
+
+    playHurraySound();
+
+
+    return;
+
+  }
+
+
+  const name =
+    pendingMedicine.dataset.name;
+
+
+  const dosage =
+    pendingMedicine.dataset.dosage;
+
+
+  const time =
+    pendingMedicine.dataset.time;
+
+
+  showReminderPopup(
+    "due",
+    name,
+    dosage,
+    time
+  );
+
+}
+
+
+
+/* =====================================================
+   TAKEN BUTTON
+   ===================================================== */
+
+document.addEventListener(
+  "click",
+  function(event) {
+
+    if (
+      event.target.classList.contains(
+        "taken-button"
+      )
+    ) {
+
+      playHurraySound();
+
+
+      speak(
+        "Hurray! Your medicine has been marked as taken. Keep going!"
+      );
+
+    }
+
+  }
+);
+
+</script>
+
+{% endblock %}
