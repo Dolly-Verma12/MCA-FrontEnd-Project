@@ -20,7 +20,7 @@ from translations import get_text
 # APP CONFIGURATION
 # =========================================================
 app = Flask(__name__)
-app.secret_key = "aarogyasaathi-secret-key-token-auth"
+app.secret_key = os.environ.get("SECRET_KEY")
 
 TODAY = lambda: date.today().isoformat()
 
